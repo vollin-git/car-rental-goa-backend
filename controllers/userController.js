@@ -87,11 +87,7 @@ export const sendOtp = async (req, res) => {
         let user = await User.findOne({ phone });
         
         if (!user) {
-            
-            user = await User.create({ 
-                phone,
-                name: `User-${phone.slice(-4)}` // Default name
-            });
+            return res.json({ success: false, message: "User not found. Please register first." });
         }
 
         user.otp = otp;
