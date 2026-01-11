@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken'
 import Car from "../models/Car.js";
 import Location from "../models/Location.js";
 import Coupon from "../models/Coupon.js";
-import { sendOTP as twilioSendOTP, verifyOTP as twilioVerifyOTP } from "../configs/twilio.js";
+import { sendOTP as gupshupSendOTP, verifyOTP as gupshupVerifyOTP } from "../configs/gupshup.js";
 
 
 
@@ -124,10 +124,10 @@ export const sendOTPController = async (req, res) => {
             return res.json({ success: false, message: 'Please enter a valid 10-digit phone number' });
         }
 
-        const result = await twilioSendOTP(phone);
+        const result = await gupshupSendOTP(phone);
         
         if (result.success) {
-            res.json({ success: true, message: 'OTP sent successfully' });
+            res.json({ success: true, message: 'OTP sent successfully via WhatsApp' });
         } else {
             res.json({ success: false, message: result.message || 'Failed to send OTP' });
         }
@@ -151,10 +151,10 @@ export const verifyOTPAndRegister = async (req, res) => {
         }
 
         // Verify OTP first
-        const otpResult = await twilioVerifyOTP(phone, otp);
+        const otpResult = await gupshupVerifyOTP(phone, otp);
         
         if (!otpResult.success) {
-            return res.json({ success: false, message: 'Invalid or expired OTP' });
+            return res.json({ success: false, message: otpResult.message || 'Invalid or expired OTP' });
         }
 
         // Check if user already exists
@@ -197,10 +197,10 @@ export const verifyOTPAndLogin = async (req, res) => {
         }
 
         // Verify OTP
-        const otpResult = await twilioVerifyOTP(phone, otp);
+        const otpResult = await gupshupVerifyOTP(phone, otp);
         
         if (!otpResult.success) {
-            return res.json({ success: false, message: 'Invalid or expired OTP' });
+            return res.json({ success: false, message: otpResult.message || 'Invalid or expired OTP' });
         }
 
         // Find user by phone
