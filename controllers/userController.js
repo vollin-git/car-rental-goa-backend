@@ -137,17 +137,13 @@ export const sendOTPController = async (req, res) => {
     }
 };
 
-// Verify OTP and Register new user
+// Verify OTP and Register new user (phone-only registration)
 export const verifyOTPAndRegister = async (req, res) => {
     try {
-        const { name, email, phone, password, otp } = req.body;
+        const { phone, otp } = req.body;
 
-        if (!name || !email || !phone || !password || !otp) {
-            return res.json({ success: false, message: 'All fields are required' });
-        }
-
-        if (password.length < 8) {
-            return res.json({ success: false, message: 'Password must be at least 8 characters' });
+        if (!phone || !otp) {
+            return res.json({ success: false, message: 'Phone and OTP are required' });
         }
 
         // Verify OTP first
@@ -158,22 +154,13 @@ export const verifyOTPAndRegister = async (req, res) => {
         }
 
         // Check if user already exists
-        const userExists = await User.findOne({ email });
-        if (userExists) {
-            return res.json({ success: false, message: 'User already exists with this email' });
-        }
-
         const phoneExists = await User.findOne({ phone });
         if (phoneExists) {
             return res.json({ success: false, message: 'User already exists with this phone number' });
         }
 
-        // Create user with verified phone
-        const hashedPassword = await bcrypt.hash(password, 10);
+        // Create user with phone only
         const user = await User.create({
-            name,
-            email,
-            password: hashedPassword,
             phone,
             isPhoneVerified: true
         });
