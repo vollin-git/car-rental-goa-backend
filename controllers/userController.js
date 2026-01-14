@@ -137,13 +137,17 @@ export const sendOTPController = async (req, res) => {
     }
 };
 
-// Verify OTP and Register new user (phone-only registration)
+// Verify OTP and Register new user (phone + name registration)
 export const verifyOTPAndRegister = async (req, res) => {
     try {
-        const { phone, otp } = req.body;
+        const { phone, otp, name } = req.body;
 
         if (!phone || !otp) {
             return res.json({ success: false, message: 'Phone and OTP are required' });
+        }
+
+        if (!name || !name.trim()) {
+            return res.json({ success: false, message: 'Name is required' });
         }
 
         // Verify OTP first
@@ -159,9 +163,10 @@ export const verifyOTPAndRegister = async (req, res) => {
             return res.json({ success: false, message: 'User already exists with this phone number' });
         }
 
-        // Create user with phone only
+        // Create user with phone and name
         const user = await User.create({
             phone,
+            name: name.trim(),
             isPhoneVerified: true
         });
 
